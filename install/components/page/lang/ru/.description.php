@@ -1,0 +1,2 @@
+<?php
+$MESS["IS_INCLUDE_PHONE_DESCRIPTION_PHONE"] = "Страница";

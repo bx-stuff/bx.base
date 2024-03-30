@@ -1,0 +1,19 @@
+{
+    "name": "bx/bx.base",
+    "description": "Module for an architectural approach for Bitrix",
+    "type": "bitrix-module",
+    "version": "1.0.0",
+    "time": "01.04.2024",
+    "license": "GPL-3.0-or-later",
+    "homepage": "https://github.com/nsvisiond/bx.base",
+    "require": {
+        "php": ">=8.1",
+        "symfony/dotenv": "^v7.0.4",
+        "nsvisiond/bxmonolog": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "BX\\Base\\": "lib/"
+        }
+    }
+}
