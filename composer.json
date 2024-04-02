@@ -2,14 +2,14 @@
     "name": "bx-stuff/bx.base",
     "description": "Module for an architectural approach for Bitrix",
     "type": "bitrix-module",
-    "version": "1.0.0",
-    "time": "01.04.2024",
+    "version": "1.0.0.1",
+    "time": "02.04.2024",
     "license": "MIT",
     "homepage": "https://github.com/bx-stuff/bx.base",
     "require": {
-        "php": ">=8.1",
-        "symfony/dotenv": "^v7.0.4",
-        "nsvisiond/bxmonolog": "dev-master"
+        "php": "^8.1",
+        "symfony/dotenv": "^v7.0",
+        "nsvisiond/bxmonolog": "^1.0"
     },
     "autoload": {
         "psr-4": {
