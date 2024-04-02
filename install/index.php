@@ -12,11 +12,6 @@ Loc::loadMessages(__FILE__);
 class bx_base extends CModule
 {
     var $MODULE_ID = 'bx.base';
-    var $MODULE_VERSION;
-    var $MODULE_VERSION_DATE;
-    var $MODULE_NAME;
-    var $MODULE_DESCRIPTION;
-    var $PARTNER_NAME;
 
     function __construct()
     {
