@@ -2,7 +2,7 @@
     "name": "bx-stuff/bx.base",
     "description": "Module for an architectural approach for Bitrix",
     "type": "bitrix-module",
-    "version": "1.0.0.1",
+    "version": "1.0.1",
     "time": "02.04.2024",
     "license": "MIT",
     "homepage": "https://github.com/bx-stuff/bx.base",
