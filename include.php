@@ -1,6 +1,5 @@
 <?php
 
-use Arrilot\BitrixBlade\BladeProvider;
 use Bitrix\Main\Application;
 use Symfony\Component\Dotenv\Dotenv;
 
