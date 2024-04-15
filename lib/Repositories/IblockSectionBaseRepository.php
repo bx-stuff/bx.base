@@ -3,7 +3,6 @@
 
 namespace BX\Base\Repositories;
 
-use BX\Log;
 use Bitrix\Iblock\IblockTable;
 use Bitrix\Iblock\Model\Section;
 use Bitrix\Main\ArgumentException;
@@ -12,9 +11,14 @@ use Bitrix\Main\SystemException;
 use BX\Base\Abstractions\AbstractRepository;
 use BX\Base\Abstractions\ModelCollection;
 use BX\Base\Interfaces\ModelInterface;
+use BX\Base\Traits\IblockTrait;
+use BX\Log;
+
 
 class IblockSectionBaseRepository extends AbstractRepository
 {
+    use IblockTrait;
+
     protected Log $log;
     protected string $iblockApiCode;
     protected string $iblockCode;
@@ -23,8 +27,51 @@ class IblockSectionBaseRepository extends AbstractRepository
     public function __construct()
     {
         $this->log = new Log();
-        $this->setIblockId();
+        $this->setIblockApiCode();
+        $this->setIblockIdAndCodeByApiCode();
     }
+
+    public function setIblockIdAndCodeByApiCode(): void
+    {
+        $iblock = IblockTable::getList([
+            'filter' => [
+                'API_CODE' => $this->code
+            ],
+            'limit' => 1,
+            'cache' => [
+                'ttl' => 86400000
+            ],
+            'select' => ['ID', 'CODE']
+        ])->fetch();
+        $this->iblockId = (int)$iblock['ID'];
+        $this->iblockCode = (string)$iblock['CODE'];
+    }
+
+    public function getList(array $params): ModelCollection
+    {
+        if (empty($params['select'])) {
+            $params['select'] = [
+                '*'
+            ];
+        }
+
+        $sectionEntity = Section::compileEntityByIblock($this->iblockId);
+        $section = [];
+        try {
+            $params['filter']['=IBLOCK_ID'] = $this->iblockId;
+            $section = $sectionEntity::getList($params)->fetchAll();
+        } catch (ObjectPropertyException|ArgumentException|SystemException $e) {
+            $this->log->error($e->getMessage(), $e->getTrace());
+        }
+
+        $modelClass = str_replace(['Repository', 'Repositories'], ['Model', 'Models'], get_called_class());
+        if (!class_exists($modelClass)) {
+            $modelClass = str_replace(['Repository', 'Repositories'], ['', 'Models'], get_called_class());
+        }
+
+        return new ModelCollection($section, $modelClass);
+    }
+
     public function getIblockId(): int
     {
         return $this->iblockId;
@@ -34,7 +81,6 @@ class IblockSectionBaseRepository extends AbstractRepository
     {
         return $this->iblockCode;
     }
-
 
     public function getIblockApiCode(): string
     {
@@ -93,50 +139,6 @@ class IblockSectionBaseRepository extends AbstractRepository
         return null;
     }
 
-    public function getList(array $params): ModelCollection
-    {
-        if (empty($params['select'])) {
-            $params['select'] = [
-                '*'
-            ];
-        }
-
-        $sectionEntity = Section::compileEntityByIblock($this->iblockId);
-        $section = [];
-        try {
-            $params['filter']['=IBLOCK_ID'] = $this->iblockId;
-            $section = $sectionEntity::getList($params)->fetchAll();
-        } catch (ObjectPropertyException|ArgumentException|SystemException $e) {
-            $this->log->error($e->getMessage(), $e->getTrace());
-        }
-
-        $modelClass = str_replace(['Repository', 'Repositories'], ['Model', 'Models'], get_called_class());
-        if (!class_exists($modelClass)) {
-            $modelClass = str_replace(['Repository', 'Repositories'], ['', 'Models'], get_called_class());
-        }
-
-        return new ModelCollection($section, $modelClass);
-    }
-
-    protected function setIblockId()
-    {
-        try {
-            $iblock = IblockTable::getList([
-                'filter' => [
-                    'API_CODE' => $this->iblockApiCode
-                ],
-                'limit' => 1,
-                'cache' => [
-                    'ttl' => 86400000
-                ],
-                'select' => ['ID']
-            ])->fetch();
-            $this->iblockId = (int)$iblock['ID'];
-        } catch (ObjectPropertyException|ArgumentException|SystemException $e) {
-            $this->log->error($e->getMessage(), $e->getTrace());
-        }
-    }
-
     /**
      * Список разделов по XML_ID
      * @return array
@@ -156,8 +158,8 @@ class IblockSectionBaseRepository extends AbstractRepository
         try {
             $params['filter']['=IBLOCK_ID'] = $this->iblockId;
             $section = $sectionEntity::getList($params)->fetchAll();
-            foreach ($section as $item){
-                if($item['XML_ID'] != ''){
+            foreach ($section as $item) {
+                if ($item['XML_ID'] != '') {
                     $sectionByXml[$item['XML_ID']] = $item['ID'];
                 }
             }
@@ -187,9 +189,8 @@ class IblockSectionBaseRepository extends AbstractRepository
         try {
             $params['filter']['=IBLOCK_ID'] = $this->iblockId;
             $section = $sectionEntity::getList($params)->fetchAll();
-            foreach ($section as $item){
+            foreach ($section as $item) {
                 $sectionById[] = $item['ID'];
-
             }
         } catch (ObjectPropertyException|ArgumentException|SystemException $e) {
             $this->log->error($e->getMessage(), $e->getTrace());

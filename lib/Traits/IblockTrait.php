@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace BX\Base\Traits;
 
-use Bitrix\Highloadblock\HighloadBlockTable;
-use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Iblock\IblockTable;
+use Bitrix\Main\Loader;
 use BX\Base\Abstractions\AbstractManager;
 use BX\Base\Abstractions\AbstractModel;
 use BX\Base\Abstractions\AbstractRepository;
-use BX\Base\Interfaces\RepositoryInterface;
 use BX\Base\Managers\IblockElementBaseManager;
-use BX\Base\Models\HlBlockBaseModel;
+use BX\Base\Managers\IblockSectionBaseManager;
 use BX\Base\Models\IblockElementBaseModel;
+use BX\Base\Models\IblockSectionBaseModel;
 use BX\Base\Repositories\IblockElementBaseRepository;
+use BX\Base\Repositories\IblockSectionBaseRepository;
+
+Loader::includeModule('iblock');
 
 trait IblockTrait
 {
     public string $code;
-
-    private AbstractModel|IblockElementBaseModel $model;
-
-    public AbstractRepository|IblockElementBaseRepository $repository;
-    public AbstractManager|IblockElementBaseManager $manager;
+    public AbstractRepository|IblockElementBaseRepository|IblockSectionBaseRepository $repository;
+    public AbstractManager|IblockElementBaseManager|IblockSectionBaseManager $manager;
+    private AbstractModel|IblockElementBaseModel|IblockSectionBaseModel $model;
 
     /**
      * @throws \Bitrix\Main\ObjectPropertyException
@@ -31,12 +32,16 @@ trait IblockTrait
      */
     public function initiateVariables(): void
     {
-        $this->model = $this->getModel();
-        $this->code = $this->model->code;
-
+        $this->setIblockApiCode();
         $this->repository = $this->getRepository();
         $this->manager = $this->getManager();
         $this->repository->setIblockIdAndCodeByApiCode();
+    }
+
+    private function setIblockApiCode(): void
+    {
+        $this->model = $this->getModel();
+        $this->code = $this->model->code;
     }
 
     private function getModel(): AbstractModel
@@ -49,24 +54,23 @@ trait IblockTrait
             $currentClass
         );
 
-        return ($currentClass === $modelClass) ? $this : new $modelClass;
+        return ($currentClass === $modelClass) ? $this : new $modelClass();
     }
 
     public function getRepository(): IblockElementBaseRepository
     {
         $currentClass = get_called_class();
 
-        $modelClass = str_replace(
+        $repositoryClass = str_replace(
             ['Services', 'Service', 'Models'],
             ['Repositories', 'Repository', 'Repositories'],
             $currentClass
         );
-
-        if (!str_contains($modelClass, 'Repository')) {
-            $modelClass = $modelClass . 'Repository';
+        if (!str_contains($repositoryClass, 'Repository')) {
+            $repositoryClass = $repositoryClass . 'Repository';
         }
 
-        return ($currentClass === $modelClass) ? $this : new $modelClass($this->code);
+        return ($currentClass === $repositoryClass) ? $this : new $repositoryClass($this->code);
     }
 
     public function getManager(): AbstractManager
@@ -83,6 +87,28 @@ trait IblockTrait
             $modelClass = $modelClass . 'Manager';
         }
 
-        return ($currentClass === $modelClass) ? $this : new $modelClass;
+        return ($currentClass === $modelClass) ? $this : new $modelClass($this->code);
+    }
+
+
+    /**
+     * @throws \Bitrix\Main\ObjectPropertyException
+     * @throws \Bitrix\Main\SystemException
+     * @throws \Bitrix\Main\ArgumentException
+     */
+    public function setIblockIdAndCodeByApiCode(): void
+    {
+        $iblock = IblockTable::getList([
+            'filter' => [
+                'API_CODE' => $this->code
+            ],
+            'limit' => 1,
+            'cache' => [
+                'ttl' => 86400000
+            ],
+            'select' => ['ID', 'CODE']
+        ])->fetch();
+        $this->iblockId = (int)$iblock['ID'];
+        $this->iblockCode = (string)$iblock['CODE'];
     }
 }
