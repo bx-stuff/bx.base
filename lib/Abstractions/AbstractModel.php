@@ -24,14 +24,14 @@ abstract class AbstractModel implements ModelInterface
      * @var array|EntityObject
      */
     protected $data;
-    protected int $iblockCode; /*todo наверное надо это в дочерних классах жёстко определять и потом в data пробрасывать*/
+    protected int $iblockCode;
     protected Log $log;
 
     /**
-     * @param $data
-     * @throws Exception
+     * @param mixed $data
+     * @throws \ReflectionException
      */
-    public function __construct($data)
+    public function __construct(mixed $data = [])
     {
         if ($data === null) {
             return null;
