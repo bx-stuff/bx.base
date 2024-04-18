@@ -15,9 +15,9 @@ class IblockSectionBaseModel extends AbstractModel
 {
     use IblockTrait;
 
-    public function __construct()
+    public function __construct(mixed $data = [])
     {
-        parent::__construct();
+        parent::__construct($data);
         $this->setIblockIdAndCodeByApiCode();
         $this->setIblockId($this->iblockId);
     }
