@@ -17,6 +17,13 @@ class IblockElementBaseModel extends AbstractModel
 {
     use IblockTrait;
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setIblockIdAndCodeByApiCode();
+        $this->setIblockId($this->iblockId);
+    }
+
     /**
      * @param int $value
      * @return void

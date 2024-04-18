@@ -24,7 +24,8 @@ abstract class AbstractModel implements ModelInterface
      * @var array|EntityObject
      */
     protected $data;
-    protected int $iblockCode;
+    protected int $iblockId;
+    protected string $iblockCode;
     protected Log $log;
 
     /**

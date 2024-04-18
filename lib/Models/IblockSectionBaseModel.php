@@ -7,11 +7,20 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;
 use BX\Base\Abstractions\AbstractModel;
+use BX\Base\Traits\IblockTrait;
 
 Loader::includeModule('iblock');
 
 class IblockSectionBaseModel extends AbstractModel
 {
+    use IblockTrait;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setIblockIdAndCodeByApiCode();
+        $this->setIblockId($this->iblockId);
+    }
 
     /**
      * @return array
