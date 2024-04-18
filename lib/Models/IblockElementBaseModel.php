@@ -412,7 +412,7 @@ class IblockElementBaseModel extends AbstractModel
 
         $id = $this->getId();
         $data = $this->data;
-        $data['IBLOCK_ID'] = $this->repository->getIblockId();
+        $data['IBLOCK_ID'] = $this->getIblockId();
 
         if ($id > 0) {
             unset($data['ID']);
