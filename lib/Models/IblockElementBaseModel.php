@@ -17,12 +17,6 @@ class IblockElementBaseModel extends AbstractModel
 {
     use IblockTrait;
 
-    public function __construct($data = [])
-    {
-        $this->initiateVariables();
-        parent::__construct($data);
-    }
-
     /**
      * @param int $value
      * @return void
