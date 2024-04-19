@@ -57,7 +57,7 @@ trait IblockTrait
         return ($currentClass === $modelClass) ? $this : new $modelClass();
     }
 
-    public function getRepository(): IblockElementBaseRepository
+    public function getRepository()
     {
         $currentClass = get_called_class();
 
