@@ -42,7 +42,7 @@ class OptionsPage extends OptionsPageAbstract
             }
         }
 
-        LocalRedirect($this->request->getRequestUri() . '&message=' . urlencode(Loc::getMessage("BX_BASE_OPTIONS_PAGE_DATA_SAVED")));
+        LocalRedirect($this->request->getRequestUri() . '&message=' . urlencode((string)Loc::getMessage("BX_BASE_OPTIONS_PAGE_DATA_SAVED")));
     }
 
     public function addTab(string $code, string $name = ''): Tab
