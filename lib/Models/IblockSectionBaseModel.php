@@ -40,7 +40,9 @@ class IblockSectionBaseModel extends AbstractModel
             'SORT' => $this->getSort(),
             'NAME' => $this->getName(),
             'PICTURE' => $this->getPicture(),
+            'PICTURE_SRC' => $this->getPictureSrc(),
             'DETAIL_PICTURE' => $this->getDetailPicture(),
+            'DETAIL_PICTURE_SRC' => $this->getDetailPictureSrc(),
             'LEFT_MARGIN' => $this->getLeftMargin(),
             'RIGHT_MARGIN' => $this->getRightMargin(),
             'DEPTH_LEVEL' => $this->getDepthLevel(),
@@ -247,12 +249,23 @@ class IblockSectionBaseModel extends AbstractModel
     {
         return (int)$this['PICTURE'];
     }
+
+    public function getPictureSrc(): string
+    {
+        return (string)\CFile::GetPath($this->getPicture());
+    }
+
     /**
      * @return int
      */
     public function getDetailPicture(): int
     {
         return (int)$this['DETAIL_PICTURE'];
+    }
+
+    public function getDetailPictureSrc(): string
+    {
+        return (string)\CFile::GetPath($this->getDetailPicture());
     }
 
     /**

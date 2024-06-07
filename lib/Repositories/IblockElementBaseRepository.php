@@ -9,7 +9,6 @@ use BX\Base\Abstractions\AbstractRepository;
 use BX\Base\Abstractions\ModelCollection;
 use BX\Base\Interfaces\ModelInterface;
 use BX\Base\Traits\IblockTrait;
-use CIBlockProperty;
 
 Loader::includeModule('iblock');
 
@@ -39,9 +38,6 @@ class IblockElementBaseRepository extends AbstractRepository
      * @param int $id
      * @param array $params
      * @return \BX\Base\Interfaces\CollectionItemInterface|null
-     * @throws \Bitrix\Main\ArgumentException
-     * @throws \Bitrix\Main\ObjectPropertyException
-     * @throws \Bitrix\Main\SystemException
      */
     public function getById(int $id, array $params = []): ?ModelInterface
     {
@@ -58,38 +54,58 @@ class IblockElementBaseRepository extends AbstractRepository
         return $fileList->first();
     }
 
-    /**
-     * @param array $params
-     * @return \BX\Base\Abstractions\ModelCollection
-     * @throws \Bitrix\Main\ArgumentException
-     * @throws \Bitrix\Main\ObjectPropertyException
-     * @throws \Bitrix\Main\SystemException
-     */
     public function getList(array $params = []): ModelCollection
     {
-        if (empty($params['select'])) {
-            $params['select'] = [
-                '*'
-            ];
-            $props = CIBlockProperty::GetList(['SORT' => 'ASC'], [
-                'IBLOCK_CODE' => $this->iblockCode,
-                'ACTIVE' => 'Y'
-            ]);
-            while ($prop = $props->Fetch()) {
-                if ($prop['CODE'] !== 'IBLOCK_ID') {
-                    $params['select'][$prop['CODE'] . '_VALUE'] = $prop['CODE'] . '.VALUE';
-                }
-            }
-        }
         $params['filter']['=IBLOCK_ID'] = $this->iblockId;
-        $iblockElementClass = '\Bitrix\Iblock\Elements\Element' . ucfirst($this->code) . 'Table';
-        $iblockElementsList = $iblockElementClass::getList($params)->fetchAll();
-        $modelClass = str_replace(['Repository', 'Repositories', 'Application'],
-            ['', 'Models', 'Domain'],
-            get_called_class());
 
+        if (empty($params['select'])) {
+            $params['select'] = ['*'];
+        }
 
-        return new ModelCollection($iblockElementsList, $modelClass);
+        if (!empty($params['select_properties'])) {
+            $propertyCodes = $params['select_properties'];
+
+            if (!empty($params['property_fields'])) {
+                $propertyFields = $params['property_fields'];
+                unset($params['property_fields']);
+            }
+
+            unset($params['select_properties']);
+            $params['select'] = ['ID'];
+        }
+
+        if (!empty($params['select_fields'])) {
+           $params['select'] = $params['select_fields'];
+           unset($params['select_fields']);
+        }
+
+        if (isset($params['select_prices'])) {
+            $isSelectPrices = $params['select_prices'];
+            $params = $this->filterEnrichByPrices($params);
+            unset($params['select_prices']);
+        }
+
+        $params['select'][] = 'ID';
+
+        $iblockElementsList = $this->getElementFields($params);
+
+        if (isset($propertyCodes)) {
+            $iblockElementsList = $this->enrichByProperties(
+                $params,
+                $iblockElementsList,
+                $propertyCodes,
+                $propertyFields ?? ['ID']
+            );
+        }
+
+        if (isset($isSelectPrices) && $isSelectPrices) {
+            $iblockElementsList = $this->enrichByPrices(
+                $params,
+                $iblockElementsList
+            );
+        }
+
+        return $this->getAsCollection($iblockElementsList);
     }
 
     /**
@@ -105,6 +121,49 @@ class IblockElementBaseRepository extends AbstractRepository
                 'ACTIVE' => 'Y'
             ]
         ]);
+    }
+
+    /**
+     * @param array $params
+     * @return mixed
+     */
+    private function getElementFields(array $params): mixed
+    {
+        $iblockElementClass = '\Bitrix\Iblock\Elements\Element' . ucfirst($this->code) . 'Table';
+
+        return $iblockElementClass::getList($params)->fetchAll();
+    }
+
+    private function enrichByProperties(array $params, array $iblockElementsList, array $propertyCodes, array $propertyFields = ['ID']): array
+    {
+        $properties = [];
+        \CIBlockElement::GetPropertyValuesArray(
+            $properties,
+            $this->iblockId,
+            $params['filter'],
+            [
+                'CODE' => $propertyCodes
+            ],
+            [
+                'PROPERTY_FIELDS' => $propertyFields,
+                'GET_RAW_DATA' => 'Y'
+            ]
+        );
+
+        foreach ($iblockElementsList as $iblockElementKey => $iblockElement) {
+            $iblockElementsList[$iblockElementKey]['PROPERTIES'] = $properties[$iblockElement['ID']];
+        }
+
+        return $iblockElementsList;
+    }
+
+    private function getAsCollection(array $iblockElementsList): ModelCollection
+    {
+        $modelClass = str_replace(['Repository', 'Repositories', 'Application'],
+            ['', 'Models', 'Domain'],
+            get_called_class());
+
+        return new ModelCollection($iblockElementsList, $modelClass);
     }
 
 }

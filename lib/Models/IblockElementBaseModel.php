@@ -211,8 +211,10 @@ class IblockElementBaseModel extends AbstractModel
             'ACTIVE_TO' => $this->getActiveTo(),
             'SORT' => $this->getSort(),
             'PREVIEW_PICTURE' => $this->getPreviewPicture(),
+            'PREVIEW_PICTURE_SRC' => $this->getPreviewPictureSrc(),
             'PREVIEW_TEXT' => $this->getPreviewText(),
             'DETAIL_PICTURE' => $this->getDetailPicture(),
+            'DETAIL_PICTURE_SRC' => $this->getDetailPictureSrc(),
             'DETAIL_TEXT' => $this->getDetailText(),
             'CODE' => $this->getCode(),
             'TAGS' => $this->getTags(),
@@ -336,6 +338,11 @@ class IblockElementBaseModel extends AbstractModel
         return (int)$this['PREVIEW_PICTURE'];
     }
 
+    public function getPreviewPictureSrc(): string
+    {
+        return (string)\CFile::GetPath($this->getPreviewPicture());
+    }
+
     /**
      * @return string
      */
@@ -350,6 +357,11 @@ class IblockElementBaseModel extends AbstractModel
     public function getDetailPicture(): int
     {
         return (int)$this['DETAIL_PICTURE'];
+    }
+
+    public function getDetailPictureSrc(): string
+    {
+        return (string)\CFile::GetPath($this->getDetailPicture());
     }
 
     /**
