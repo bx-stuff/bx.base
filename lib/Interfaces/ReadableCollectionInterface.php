@@ -15,7 +15,7 @@ interface ReadableCollectionInterface extends IteratorAggregate, Countable, Json
      * @param mixed $value
      * @return CollectionItemInterface|null
      */
-    public function findByKey(string $key, $value): ?CollectionItemInterface;
+    public function findByKey(string $key, mixed $value): ?CollectionItemInterface;
 
     /**
      * @param callable $fn - attribute CollectionItemInterface
@@ -53,10 +53,10 @@ interface ReadableCollectionInterface extends IteratorAggregate, Countable, Json
 
     /**
      * @param string $key
-     * @param ...$value
-     * @return CollectionItemInterface[]|ReadableCollectionInterface
+     * @param mixed $value
+     * @return \BX\Base\Interfaces\ReadableCollectionInterface
      */
-    public function filterByKey(string $key, ...$value): ReadableCollectionInterface;
+    public function filterByKey(string $key, mixed $value): ReadableCollectionInterface;
 
     /**
      * @param callable $fn - attribute CollectionItemInterface
