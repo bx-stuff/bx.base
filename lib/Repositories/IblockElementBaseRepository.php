@@ -216,6 +216,7 @@ class IblockElementBaseRepository extends AbstractRepository
     private function enrichByDetailPageUrl(array $params): array
     {
         if (in_array('DETAIL_PAGE_URL', $params['select_fields'])) {
+            $params['select_fields'] = array_diff($params['select'], ['DETAIL_PAGE_URL']);
             $params['select_fields']['DETAIL_PAGE_URL'] = 'IBLOCK.DETAIL_PAGE_URL';
             $params['select_fields'][] = '*';
         }
