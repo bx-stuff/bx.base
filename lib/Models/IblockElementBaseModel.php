@@ -211,18 +211,18 @@ class IblockElementBaseModel extends AbstractModel
             'ACTIVE_TO' => $this->getActiveTo(),
             'SORT' => $this->getSort(),
             'PREVIEW_PICTURE' => $this->getPreviewPicture(),
-            'PREVIEW_PICTURE_SRC' => $this->getPreviewPictureSrc(),
             'PREVIEW_TEXT' => $this->getPreviewText(),
             'DETAIL_PICTURE' => $this->getDetailPicture(),
-            'DETAIL_PICTURE_SRC' => $this->getDetailPictureSrc(),
             'DETAIL_TEXT' => $this->getDetailText(),
             'CODE' => $this->getCode(),
+            'ELEMENT_CODE' => $this->getCode(),
             'TAGS' => $this->getTags(),
             'IBLOCK_SECTION_ID' => $this->getIblockSectionId(),
             'IBLOCK_SECTION' => $this->getIblockSection(),
             'TIMESTAMP_X' => $this->getTimestampX(),
             'PRICE' => $this->getPrice(),
             'QUANTITY' => $this->getQuantity(),
+            'SITE_DIR' => SITE_DIR
         ];
     }
 
@@ -245,9 +245,9 @@ class IblockElementBaseModel extends AbstractModel
     /**
      * @return float
      */
-    public function getPrice(): float
+    public function getPrice(): array
     {
-        return (float)$this['PRICE'];
+        return (array)$this['PRICE'];
     }
 
     /**
@@ -410,6 +410,11 @@ class IblockElementBaseModel extends AbstractModel
     public function getTimestampX(): ?DateTime
     {
         return $this['TIMESTAMP_X'] instanceof DateTime ? $this['TIMESTAMP_X'] : null;
+    }
+
+    public function getDetailPageUrl(): array|string|null
+    {
+        return \CIBlock::ReplaceDetailUrl($this['DETAIL_PAGE_URL'], $this->toArray(), arrType: 'E');
     }
 
     public function setProperty($propertyCode, $propertyValue): void

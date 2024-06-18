@@ -3,6 +3,7 @@
 
 namespace BX\Base\Abstractions;
 
+use Bitrix\Main\UI\PageNavigation;
 use BX\Base\Interfaces\CollectionInterface;
 use BX\Base\Interfaces\CollectionItemInterface;
 use BX\Base\Interfaces\ModelCollectionInterface;
@@ -21,6 +22,9 @@ class ModelCollection extends Collection implements ModelCollectionInterface
      * @var string
      */
     protected string $className;
+
+    public int $count = 0;
+    protected PageNavigation $nav;
 
     public function __construct($list, string $className)
     {
@@ -99,17 +103,6 @@ class ModelCollection extends Collection implements ModelCollectionInterface
     /**
      * @param string $fieldName
      * @param $value
-     * @return $this
-     * @deprecated
-     */
-    public function filerByColumn(string $fieldName, $value): self
-    {
-        return $this->filterByKey($fieldName, $value);
-    }
-
-    /**
-     * @param string $fieldName
-     * @param $value
      * @return ModelInterface|null
      */
     public function findByColumn(string $fieldName, $value): ?CollectionItemInterface
@@ -151,6 +144,7 @@ class ModelCollection extends Collection implements ModelCollectionInterface
         return $this->getApiModel();
     }
 
+
     /**
      * @param $list
      * @return ReadableCollectionInterface
@@ -158,5 +152,20 @@ class ModelCollection extends Collection implements ModelCollectionInterface
     protected function newCollection($list): ReadableCollectionInterface
     {
         return new static($list, $this->className);
+    }
+
+    public function getCount(): int
+    {
+        return $this->count;
+    }
+
+    public function getNav(): PageNavigation
+    {
+        return $this->nav;
+    }
+
+    public function setNav(PageNavigation $nav)
+    {
+        $this->nav = $nav;
     }
 }

@@ -38,7 +38,7 @@ class Collection implements CollectionInterface
      * @param mixed $value
      * @return CollectionItemInterface|null
      */
-    public function findByKey(string $key, $value): ?CollectionItemInterface
+    public function findByKey(string $key, mixed $value): ?CollectionItemInterface
     {
         foreach ($this as $item) {
             if ($item->hasValueKey($key) && $item->assertValueByKey($key, $value)) {
@@ -119,10 +119,10 @@ class Collection implements CollectionInterface
 
     /**
      * @param string $key
-     * @param mixed ...$value
-     * @return CollectionItemInterface[]|ReadableCollectionInterface
+     * @param mixed $value
+     * @return \BX\Base\Interfaces\ReadableCollectionInterface
      */
-    public function filterByKey(string $key, ...$value): ReadableCollectionInterface
+    public function filterByKey(string $key, mixed $value): ReadableCollectionInterface
     {
         $newCollection = $this->newCollection([]);
         if (empty($value)) {
@@ -130,7 +130,7 @@ class Collection implements CollectionInterface
         }
 
         foreach ($this as $item) {
-            if ($item->hasValueKey($key) && in_array($item->getValueByKey($key), (array)$value)) {
+            if ($item->hasValueKey($key) && in_array($item->getValueByKey($key), $value)) {
                 $newCollection->append($item);
             }
         }

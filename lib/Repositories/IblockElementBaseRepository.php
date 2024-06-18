@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BX\Base\Repositories;
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\UI\PageNavigation;
 use BX\Base\Abstractions\AbstractRepository;
 use BX\Base\Abstractions\ModelCollection;
 use BX\Base\Interfaces\ModelInterface;
@@ -18,6 +19,7 @@ class IblockElementBaseRepository extends AbstractRepository
 
     protected string $iblockCode;
     protected int $iblockId;
+    protected int $count = 0;
 
     public function __construct()
     {
@@ -49,9 +51,29 @@ class IblockElementBaseRepository extends AbstractRepository
         ];
 
         $params = array_merge($baseParams, $params);
+        $elements = $this->getList($params);
 
-        $fileList = $this->getList($params);
-        return $fileList->first();
+        return $elements->first();
+    }
+
+    /**
+     * @param string $code
+     * @param array $params
+     * @return \BX\Base\Interfaces\CollectionItemInterface|null
+     */
+    public function getByCode(string $code, array $params = []): ?ModelInterface
+    {
+        $baseParams = [
+            'filter' => [
+                '=CODE' => $code
+            ],
+            'limit' => 1,
+        ];
+
+        $params = array_merge($baseParams, $params);
+        $elements = $this->getList($params);
+
+        return $elements->first();
     }
 
     public function getList(array $params = []): ModelCollection
@@ -75,6 +97,7 @@ class IblockElementBaseRepository extends AbstractRepository
         }
 
         if (!empty($params['select_fields'])) {
+           $params = $this->enrichByDetailPageUrl($params);
            $params['select'] = $params['select_fields'];
            unset($params['select_fields']);
         }
@@ -108,17 +131,32 @@ class IblockElementBaseRepository extends AbstractRepository
         return $this->getAsCollection($iblockElementsList);
     }
 
-    /**
-     * @return \BX\Base\Abstractions\ModelCollection
-     * @throws \Bitrix\Main\ArgumentException
-     * @throws \Bitrix\Main\ObjectPropertyException
-     * @throws \Bitrix\Main\SystemException
-     */
+    public function getNavList(string $navName, int $itemsPerPage = 10, array $params = []): ModelCollection
+    {
+
+        $nav = new PageNavigation($navName);
+        $nav->allowAllRecords(false)
+            ->setPageSize($itemsPerPage)
+            ->initFromUri();
+
+        $params['limit'] = $nav->getLimit();
+        $params['offset'] = $nav->getOffset();
+        $params['count_total'] = true;
+
+        $items = $this->getList($params);
+
+        $nav->setRecordCount($items->getCount());
+
+        $items->setNav($nav);
+
+        return $items;
+    }
+
     public function getActiveList(): ModelCollection
     {
         return $this->getList([
             'filter' => [
-                'ACTIVE' => 'Y'
+                '=ACTIVE' => 'Y'
             ]
         ]);
     }
@@ -130,8 +168,13 @@ class IblockElementBaseRepository extends AbstractRepository
     private function getElementFields(array $params): mixed
     {
         $iblockElementClass = '\Bitrix\Iblock\Elements\Element' . ucfirst($this->code) . 'Table';
+        $result = $iblockElementClass::getList($params);
 
-        return $iblockElementClass::getList($params)->fetchAll();
+        if ($params['count_total']) {
+            $this->count = $result->getCount();
+        }
+
+        return $result->fetchAll();
     }
 
     private function enrichByProperties(array $params, array $iblockElementsList, array $propertyCodes, array $propertyFields = ['ID']): array
@@ -163,7 +206,22 @@ class IblockElementBaseRepository extends AbstractRepository
             ['', 'Models', 'Domain'],
             get_called_class());
 
-        return new ModelCollection($iblockElementsList, $modelClass);
+        $collection = new ModelCollection($iblockElementsList, $modelClass);
+
+        $collection->count = $this->count;
+
+        return $collection;
+    }
+
+    private function enrichByDetailPageUrl(array $params): array
+    {
+        if (in_array('DETAIL_PAGE_URL', $params['select_fields'])) {
+            $params['select_fields'] = array_diff($params['select'], ['DETAIL_PAGE_URL']);
+            $params['select_fields']['DETAIL_PAGE_URL'] = 'IBLOCK.DETAIL_PAGE_URL';
+            $params['select_fields'][] = '*';
+        }
+
+        return $params;
     }
 
 }
