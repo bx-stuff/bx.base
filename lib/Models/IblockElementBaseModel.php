@@ -338,9 +338,14 @@ class IblockElementBaseModel extends AbstractModel
         return (int)$this['PREVIEW_PICTURE'];
     }
 
-    public function getPreviewPictureSrc(): string
+    public function getPreviewPictureSrc(int $width = 0, int $height = 0, int $resizeType = BX_RESIZE_IMAGE_PROPORTIONAL): string
     {
-        return (string)\CFile::GetPath($this->getPreviewPicture());
+        if ($width > 0 || $height > 0) {
+            $picture = \CFile::ResizeImageGet($this->getPreviewPicture(), ['width' => $width, 'height' => $height], $resizeType);
+            return (string)$picture['src'];
+        } else {
+            return (string)\CFile::GetPath($this->getPreviewPicture());
+        }
     }
 
     /**
@@ -359,9 +364,14 @@ class IblockElementBaseModel extends AbstractModel
         return (int)$this['DETAIL_PICTURE'];
     }
 
-    public function getDetailPictureSrc(): string
+    public function getDetailPictureSrc(int $width = 0, int $height = 0, int $resizeType = BX_RESIZE_IMAGE_PROPORTIONAL): string
     {
-        return (string)\CFile::GetPath($this->getDetailPicture());
+        if ($width > 0 || $height > 0) {
+            $picture = \CFile::ResizeImageGet($this->getDetailPicture(), ['width' => $width, 'height' => $height], $resizeType);
+            return (string)$picture['src'];
+        } else {
+            return (string)\CFile::GetPath($this->getDetailPicture());
+        }
     }
 
     /**
