@@ -8,7 +8,7 @@
     "homepage": "https://github.com/bx-stuff/bx.base",
     "require": {
         "php": "^8.1",
-        "symfony/dotenv": "^v7.0",
+        "symfony/dotenv": "^v6.0",
         "nsvisiond/bxmonolog": "^1.0"
     },
     "require-dev": {
