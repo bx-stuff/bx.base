@@ -1,2 +1,0 @@
-<?php
-$MESS["IS_INCLUDE_PHONE_PARAMETERS_PHONE"] = "Страница";

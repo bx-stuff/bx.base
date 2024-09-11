@@ -2,17 +2,12 @@
     "name": "bx-stuff/bx.base",
     "description": "Module for an architectural approach for Bitrix",
     "type": "bitrix-d7-module",
-    "version": "1.0.3",
-    "time": "08.04.2024",
-    "license": "MIT",
+    "version": "2.0.0",
+    "time": "11.09.2024",
+    "license": "GPL-3.0-or-later",
     "homepage": "https://github.com/bx-stuff/bx.base",
     "require": {
-        "php": "^8.1",
-        "symfony/dotenv": "^v6.0",
-        "nsvisiond/bxmonolog": "^1.0"
-    },
-    "require-dev": {
-        "symfony/var-dumper": "^6.0"
+        "php": "^8.1"
     },
     "autoload": {
         "psr-4": {

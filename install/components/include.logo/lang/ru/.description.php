@@ -1,1 +1,0 @@
-<?$MESS["BX_INCLUDE_LOGO_DESCRIPTION"] = "Логотип";
